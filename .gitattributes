@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------
+#  换行符策略
+#
+#  .bat 文件**必须**是 CRLF。用 LF 的 .bat 会让 cmd 解析错乱，
+#  实测会出现 "'hisper' 不是内部或外部命令" 这类诡异报错。
+#  这里强制仓库里就存 CRLF，不管克隆者有没有配 core.autocrlf。
+# ---------------------------------------------------------------
+*.bat           text eol=crlf
+
+# 其余文本统一 LF（规范、跨平台一致）
+*.py            text eol=lf
+*.pyi           text eol=lf
+*.js            text eol=lf
+*.mjs           text eol=lf
+*.css           text eol=lf
+*.html          text eol=lf
+*.md            text eol=lf
+*.txt           text eol=lf
+*.json          text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+LICENSE         text eol=lf
+
+# ---------------------------------------------------------------
+#  二进制文件 —— 禁止任何换行符转换
+# ---------------------------------------------------------------
+*.wav           binary
+*.mp3           binary
+*.flac          binary
+*.ogg           binary
+*.m4a           binary
+*.mp4           binary
+*.mkv           binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.ico           binary
+*.onnx          binary
+*.bin           binary
+*.xml           binary
+*.pdf           binary
+
+# ---------------------------------------------------------------
+#  GitHub 语言统计：把生成物和测试样本排除在外，
+#  避免仓库被标记成 "HTML/CSS" 之类
+# ---------------------------------------------------------------
+docs/screenshots/*  linguist-documentation
+samples/*.wav       linguist-vendored
+webui/static/*.css  linguist-language=CSS
+
+# 让 diff 更可读
+*.py            diff=python
+*.md            diff=markdown

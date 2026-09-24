@@ -1,0 +1,30 @@
+# ---------------------------------------------------------------
+#  Whisper + OpenVINO · 依赖
+#
+#  本机实测通过的版本（见注释）。用 >= 是为了让新版本能装上，
+#  但如果你遇到奇怪问题，可以先按注释里的版本回退试试。
+#
+#  安装：
+#     python -m venv venv
+#     venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+#  国内网络提示：清华源通常滞后于最新版 OpenVINO，
+#  装不到时加上官方源 --extra-index-url https://pypi.org/simple
+# ---------------------------------------------------------------
+
+# 推理引擎（Whisper 跑在这上面）
+openvino>=2025.0            # 实测 2026.4.0
+openvino-genai>=2025.0      # 实测 2026.4.0.0，WhisperPipeline 在这里
+
+# 音频解码 —— 自带 ffmpeg，所以不需要另装 ffmpeg
+# mp3 / mp4 / mkv / flac 等全靠它
+av>=12.0                    # 实测 18.1.0
+
+# 基础科学计算
+numpy>=1.24                 # 实测 2.5.3
+
+# 模型下载（魔搭 ModelScope 的 HTTP API）
+requests>=2.28              # 实测 2.34.2
+
+# 下载进度显示
+tqdm>=4.65                  # 实测 4.70.1

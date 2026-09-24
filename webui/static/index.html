@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisper 本地转写</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127908;</text></svg>">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span>Whisper 本地转写 <small>OpenVINO · Intel Arc</small></div>
+  <div class="spacer"></div>
+  <span class="badge" id="bGpu"><span class="k">显卡</span> 检测中…</span>
+  <span class="badge" id="bModel"><span class="k">模型</span> —</span>
+  <span class="badge" id="bVad"><span class="k">VAD</span> —</span>
+</div>
+
+<div class="layout">
+
+  <!-- ==================== 左栏：输入与参数 ==================== -->
+  <div class="col left">
+
+    <div class="card">
+      <h2>输入文件</h2>
+      <div class="body">
+        <div class="dropzone" id="drop">
+          <div class="big">拖拽音视频到这里</div>
+          <div class="sub">或点击浏览本机文件 · 支持 17 种格式</div>
+        </div>
+        <div class="filelist" id="filelist"></div>
+        <div class="row" style="margin-top:9px">
+          <button class="btn sm" id="btnBrowse">浏览文件…</button>
+          <button class="btn sm ghost" id="btnClearFiles">清空</button>
+          <div class="spacer" style="flex:1"></div>
+          <label class="switch" title="勾选后选择目录会递归子文件夹">
+            <input type="checkbox" id="recursive"><span class="track"></span>递归目录
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>识别设置</h2>
+      <div class="body">
+        <label class="fld">
+          <span class="lbl">精度档位</span>
+          <div class="seg" id="segAcc"></div>
+          <div class="hint" id="accHint"></div>
+        </label>
+
+        <div class="grid2">
+          <label class="fld">
+            <span class="lbl">模型</span>
+            <select id="model"><option value="">跟随档位</option></select>
+          </label>
+          <label class="fld">
+            <span class="lbl">设备</span>
+            <select id="device"></select>
+          </label>
+        </div>
+
+        <label class="fld">
+          <span class="lbl">语言 <span class="kbd" id="langCount"></span></span>
+          <select id="language"></select>
+          <div class="hint">单语素材建议显式指定；<b>中英混杂时请用「自动检测」</b>，强制指定会把英文段转成中文音译。</div>
+        </label>
+
+        <label class="fld">
+          <span class="lbl">输出格式</span>
+          <div class="checks" id="formats"></div>
+        </label>
+
+        <label class="fld">
+          <span class="lbl">术语表 / 人名 <span class="kbd">prompt</span></span>
+          <textarea id="prompt" placeholder="例：参会人：黄凯扬、张伟。术语：OpenVINO、Tauri、A770。&#10;把专名、缩写、易错词写进来，能明显提升准确率。"></textarea>
+          <div class="hint">这是提升专名准确率最有效的手段，强烈建议填写。</div>
+        </label>
+      </div>
+
+      <details class="adv">
+        <summary>高级选项</summary>
+        <div class="body">
+          <div class="grid2">
+            <label class="fld">
+              <span class="lbl">输出目录</span>
+              <input type="text" id="outputDir" placeholder="默认与原文件同目录">
+            </label>
+            <label class="fld">
+              <span class="lbl">热词 <span class="kbd">hotwords</span></span>
+              <input type="text" id="hotwords" placeholder="逗号分隔">
+            </label>
+          </div>
+
+          <label class="fld">
+            <span class="lbl">静音门控 VAD</span>
+            <label class="switch"><input type="checkbox" id="vad"><span class="track"></span>剔除长静音后再识别（强烈建议开启）</label>
+            <div class="hint">关闭后，录音里的静音段会被 Whisper 编造出「请不吝点赞 订阅 转发…」这类垃圾文本。</div>
+          </label>
+
+          <div class="grid2">
+            <label class="fld">
+              <span class="lbl">合并间隔 (ms)</span>
+              <input type="number" id="vadMerge" value="2500" step="100" min="200">
+              <div class="hint">小于此间隔的停顿会并成一块以保上下文，默认 2500</div>
+            </label>
+            <label class="fld">
+              <span class="lbl">单块上限 (s)</span>
+              <input type="number" id="vadMax" value="28" step="1" min="5">
+              <div class="hint">Whisper 内部窗口为 30s</div>
+            </label>
+          </div>
+
+          <label class="fld">
+            <span class="lbl">其它</span>
+            <div class="checks">
+              <label><input type="checkbox" id="tsNames">文件名加时间戳</label>
+              <label><input type="checkbox" id="keepHallu">保留疑似幻觉</label>
+            </div>
+          </label>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="body">
+        <div class="row">
+          <button class="btn primary" id="btnRun" style="flex:1">开始转写</button>
+          <button class="btn danger" id="btnCancel" disabled>取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 右栏：进度与结果 ==================== -->
+  <div class="col">
+    <div class="card" id="progCard" style="display:none">
+      <h2>进度 <span class="spacer"></span><span itemprop="none" id="stageTag" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)"></span></h2>
+      <div class="body">
+        <div class="note" id="alert"></div>
+        <div class="progress-wrap" id="progWrap">
+          <div class="bar" id="bar"><i></i></div>
+          <div class="status">
+            <span id="stText">准备中…</span>
+            <span class="spacer"></span>
+            <span class="num" id="stPct"></span>
+          </div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>结果 <span class="spacer"></span>
+        <button class="btn sm ghost" id="btnCopyAll" style="display:none">复制全部文本</button>
+      </h2>
+      <div class="body" id="results">
+        <div class="empty">
+          <div class="ic">🎧</div>
+          <div class="big">还没有转写结果</div>
+          <div class="sub">在左侧选择音视频文件，点「开始转写」</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 文件浏览弹层 -->
+<div class="modal-mask" id="mask">
+  <div class="modal">
+    <header>选择音视频文件 <span class="spacer" style="flex:1"></span>
+      <button class="btn sm ghost" id="btnUp">↑ 上一级</button>
+      <button class="btn sm ghost" id="btnClose">关闭</button>
+    </header>
+    <div class="crumb">
+      <span class="kbd">路径</span>
+      <input type="text" id="crumbPath" spellcheck="false">
+      <button class="btn sm" id="btnGo">前往</button>
+    </div>
+    <div class="list" id="browseList"></div>
+    <footer>
+      <span style="flex:1;color:var(--text-3);font-size:12px" id="selInfo"></span>
+      <button class="btn" id="btnAddDir">添加整个目录</button>
+      <button class="btn primary" id="btnAddSel" disabled>添加所选</button>
+    </footer>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
