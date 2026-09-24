@@ -3,9 +3,16 @@
 #
 #  .bat 文件**必须**是 CRLF。用 LF 的 .bat 会让 cmd 解析错乱，
 #  实测会出现 "'hisper' 不是内部或外部命令" 这类诡异报错。
-#  这里强制仓库里就存 CRLF，不管克隆者有没有配 core.autocrlf。
+#
+#  这里用 `-text`（完全禁用换行符转换）而不是 `text eol=crlf`：
+#  后者的行为是「仓库存 LF、检出时转 CRLF」，于是
+#    - git clone      -> CRLF ✓
+#    - GitHub ZIP 下载 -> CRLF ✓
+#    - raw 链接        -> LF   ✗   （raw 直接吐 blob，不过检出转换）
+#  而 `-text` 让 blob 里就是 CRLF，三种获取方式全部拿到 CRLF。
+#  代价只是 diff 时行尾会显示 ^M —— 对 .bat 来说可以接受。
 # ---------------------------------------------------------------
-*.bat           text eol=crlf
+*.bat           -text
 
 # 其余文本统一 LF（规范、跨平台一致）
 *.py            text eol=lf
