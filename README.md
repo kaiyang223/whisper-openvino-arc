@@ -4,15 +4,22 @@
 
 **在你的 Intel 独显上跑 Whisper，纯本地、不联网、不上传音频**
 
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6?logo=windows)](https://www.microsoft.com/windows)
-[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![OpenVINO](https://img.shields.io/badge/OpenVINO-2026.4-1B6AC9)](https://github.com/openvinotoolkit/openvino)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-55%20%2B%2039%20passing-brightgreen)](#开发与测试)
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6?logo=windows)
 
-<br>
+![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python\&logoColor=white)
 
-<img src="docs/screenshots/04-result.png" alt="Web 界面" width="880">
+![OpenVINO](https://img.shields.io/badge/OpenVINO-2026.4-1B6AC9)
+
+
+
+![License](https://img.shields.io/badge/license-MIT-green)
+
+![Tests](https://img.shields.io/badge/tests-55%20%2B%2039%20passing-brightgreen)
+
+  
+
+
+![Web 界面](docs/screenshots/04-result.png)
 
 *内置 Web 界面：拖拽选文件、实时进度、结果三视图、一键下载*
 
@@ -22,16 +29,16 @@
 
 ## 这是什么
 
-一个把 **OpenAI Whisper** 部署到 **Intel Arc 独显**上的完整方案。基于 OpenVINO GenAI，
+一个把 **OpenAI Whisper** 部署到 **Intel Arc 独显**上的完整方案。基于 OpenVINO GenAI，  
 pip 装完就能用，不需要编译任何东西。
 
 - **快** — Arc A770 上 **55× 实时**，10 分钟录音约 13 秒出稿
 - **准** — 内置 Silero VAD 静音门控，干掉 Whisper 最出名的「静音幻觉」问题
 - **好用** — Web 界面点选 / 命令行批量 / 拖拽文件，三种用法
 
-> **English**：A Windows-focused toolkit that runs Whisper on Intel Arc GPUs via OpenVINO GenAI.
-> Highlights: Silero VAD gating to suppress Whisper's silence hallucination, standards-compliant
-> SRT/VTT/LRC output cross-validated against ffmpeg, and a zero-dependency local web UI.
+> **English**：A Windows-focused toolkit that runs Whisper on Intel Arc GPUs via OpenVINO GenAI.  
+> Highlights: Silero VAD gating to suppress Whisper's silence hallucination, standards-compliant  
+> SRT/VTT/LRC output cross-validated against ffmpeg, and a zero-dependency local web UI.  
 > The Python core is cross-platform; only the `.bat` launchers are Windows-specific.
 
 ---
@@ -74,13 +81,13 @@ pip 装完就能用，不需要编译任何东西。
 
 Whisper 在**非语音段**会凭空编造文本。实测：
 
-| 输入 | 不开 VAD | 开 VAD |
-|---|---|---|
+| 输入          | 不开 VAD                    | 开 VAD   |
+| ----------- | ------------------------- | ------- |
 | 30 秒纯静音（中文） | `请不吝点赞 订阅 转发 打赏支持明镜与点点栏目` | **（空）** |
-| 30 秒纯静音（英文） | `Thank you.` | **（空）** |
-| 50Hz 工频干扰 | `Thank you.` | **（空）** |
+| 30 秒纯静音（英文） | `Thank you.`              | **（空）** |
+| 50Hz 工频干扰   | `Thank you.`              | **（空）** |
 
-任何有停顿的录音（会议、讲座、访谈、Vlog）都会中招，而且输出**看起来很正常**，
+任何有停顿的录音（会议、讲座、访谈、Vlog）都会中招，而且输出**看起来很正常**，  
 不逐句核对根本发现不了。实测 `initial_prompt` 和 `temperature=0` 都压不住它。
 
 本项目用**两道防线**解决：
@@ -120,27 +127,27 @@ SRT / VTT / LRC 全部经过**格式规范校验 + ffmpeg 实际解析双重验�
 
 ## 性能实测
 
-测试机：**Intel Arc A770 16GB + AMD Ryzen 5 5600 + Windows 11**
+测试机：**Intel Arc A770 16GB + AMD Ryzen 5 5600 + Windows 11**  
 音频：44 秒英文语音，预热后取两次最快值。
 
-| 模型 | 设备 | 耗时 | 实时倍速 |
-|---|---|---|---|
-| **large-v3-turbo FP16** | **Arc A770 GPU** | **0.79 s** | **55.5×** |
-| large-v3-turbo FP16（含 VAD） | Arc A770 GPU | 1.06 s | 41.6× |
-| large-v3 FP16 | Arc A770 GPU | 2.71 s | 16.3× |
-| large-v3-turbo FP16 | Ryzen 5 5600 CPU | 11.44 s | 3.8× |
-| large-v3 FP16 | Ryzen 5 5600 CPU | 19.36 s | 2.3× |
+| 模型                         | 设备               | 耗时         | 实时倍速      |
+| -------------------------- | ---------------- | ---------- | --------- |
+| **large-v3-turbo FP16**    | **Arc A770 GPU** | **0.79 s** | **55.5×** |
+| large-v3-turbo FP16（含 VAD） | Arc A770 GPU     | 1.06 s     | 41.6×     |
+| large-v3 FP16              | Arc A770 GPU     | 2.71 s     | 16.3×     |
+| large-v3-turbo FP16        | Ryzen 5 5600 CPU | 11.44 s    | 3.8×      |
+| large-v3 FP16              | Ryzen 5 5600 CPU | 19.36 s    | 2.3×      |
 
 换算成直观感觉（turbo + GPU）：
 
-| 音频时长 | 预计耗时 |
-|---|---|
-| 10 分钟 | 约 13 秒 |
-| 1 小时 | 约 75 秒 |
-| 2 小时 | 约 2.5 分钟 |
+| 音频时长  | 预计耗时     |
+| ----- | -------- |
+| 10 分钟 | 约 13 秒   |
+| 1 小时  | 约 75 秒   |
+| 2 小时  | 约 2.5 分钟 |
 
-> 模型加载另需 5~11 秒，一个进程只加载一次，批量转写时会被摊薄。
-> VAD 额外开销约 27%（11 秒音频的 VAD 只需 50~150ms）。
+> 模型加载另需 5~~11 秒，一个进程只加载一次，批量转写时会被摊薄。  
+> VAD 额外开销约 27%（11 秒音频的 VAD 只需 50~~150ms）。
 
 自己复测：
 
@@ -154,23 +161,23 @@ whisper.bat samples\bench_en_44s.wav --bench -l en
 
 ### 环境要求
 
-| | |
-|---|---|
-| 系统 | Windows 10 / 11 |
-| 显卡 | Intel Arc 独显（A 系列 / B 系列）；核显也可但较慢 |
-| 驱动 | Intel 显卡驱动 **31.0.101.4xxx 以上** |
-| Python | **3.10 或更高**（3.13 有官方 wheel） |
-| 磁盘 | 约 5 GB（虚拟环境 400MB + 模型 4.5GB） |
-| 网络 | 首次安装需要（下载依赖和模型，之后完全离线） |
+|        |                                   |
+| ------ | --------------------------------- |
+| 系统     | Windows 10 / 11                   |
+| 显卡     | Intel Arc 独显（A 系列 / B 系列）；核显也可但较慢 |
+| 驱动     | Intel 显卡驱动 **31.0.101.4xxx 以上**   |
+| Python | **3.10 或更高**（3.13 有官方 wheel）      |
+| 磁盘     | 约 5 GB（虚拟环境 400MB + 模型 4.5GB）     |
+| 网络     | 首次安装需要（下载依赖和模型，之后完全离线）            |
 
-> 没装 Python？去 [python.org](https://www.python.org/downloads/) 下载，
+> 没装 Python？去 [python.org](https://www.python.org/downloads/) 下载，  
 > 安装时**务必勾选 "Add python.exe to PATH"**。
 
 ### 安装
 
 ```bat
 :: 1. clone 或下载解压到任意目录
-git clone <this-repo> whisper-openvino-arc
+git clone https://github.com/kaiyang223/whisper-openvino-arc.git
 
 :: 2. 右键 setup.bat -> 以管理员身份运行
 ::    会自动：建虚拟环境 -> 装依赖 -> 下模型 -> 环境自检
@@ -182,10 +189,11 @@ git clone <this-repo> whisper-openvino-arc
   结论: 环境正常，可以直接用 whisper.bat 转写。
 ```
 
-> **国内网络提示**：项目默认从**魔搭 ModelScope** 下载模型（HuggingFace 在国内常不可达），
+> **国内网络提示**：项目默认从**魔搭 ModelScope** 下载模型（HuggingFace 在国内常不可达），  
 > 不需要额外配置。
 >
 > **手动安装**（不想用 `setup.bat`）：
+>
 > ```bat
 > python -m venv venv
 > venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -205,9 +213,9 @@ webui.bat
 
 会自动打开浏览器（默认 `http://127.0.0.1:8765/`）。关掉命令行窗口即停止。
 
-<img src="docs/screenshots/02-browse.png" alt="文件浏览" width="720">
+![文件浏览](docs/screenshots/02-browse.png)
 
-**能做的事**：内置目录浏览器逐级点选文件、拖拽上传、精度档位/模型/设备/语言/格式全可视化配置、
+**能做的事**：内置目录浏览器逐级点选文件、拖拽上传、精度档位/模型/设备/语言/格式全可视化配置、  
 实时进度日志、结果三视图（文本 / 分段表 / JSON）、一键复制、直接下载各种格式、长任务可取消。
 
 > 服务**只监听 127.0.0.1**，不对外网开放。
@@ -235,8 +243,8 @@ whisper.bat "D:\media\访谈.wav" --prompt "参会人：张三、李四。术语
 whisper.bat "D:\media\a.wav" --bench
 ```
 
-**支持的输入格式**（17 种）：
-`wav` `mp3` `flac` `m4a` `aac` `ogg` `opus` `wma`
+**支持的输入格式**（17 种）：  
+`wav` `mp3` `flac` `m4a` `aac` `ogg` `opus` `wma`  
 `mp4` `mkv` `mov` `avi` `webm` `ts` `flv` `wmv` `m4v`
 
 ---
@@ -249,54 +257,54 @@ whisper.bat "D:\media\a.wav" --bench
 whisper.bat "D:\media\会议录音.mp3" -a max -l zh --prompt "参会人：张三。术语：OpenVINO"
 ```
 
-| | 做什么 | 为什么 |
-|---|---|---|
-| 1 | `-a max` | 用 **large-v3** 大模型，不用 turbo 蒸馏版 |
-| 2 | `-l zh` | **显式指定语言**。auto 检测在短音频、嘈杂环境下会误判 |
-| 3 | `--prompt "..."` | 把**人名、术语、专名**喂进去，提升专名准确率最有效的手段 |
+|   | 做什么              | 为什么                             |
+| - | ---------------- | ------------------------------- |
+| 1 | `-a max`         | 用 **large-v3** 大模型，不用 turbo 蒸馏版 |
+| 2 | `-l zh`          | **显式指定语言**。auto 检测在短音频、嘈杂环境下会误判 |
+| 3 | `--prompt "..."` | 把**人名、术语、专名**喂进去，提升专名准确率最有效的手段  |
 
-> ⚠️ **第 2 条有个例外**：素材里**混着多种语言**时**不要**指定语言，用默认 `auto`。
+> ⚠️ **第 2 条有个例外**：素材里**混着多种语言**时**不要**指定语言，用默认 `auto`。  
 > 实测强制 `-l zh` 会把中间的英文段落转成中文音译，直接毁掉那段内容。
 
 ### 三条「不要做」
 
-| ❌ | 原因 |
-|---|---|
-| 不要用 `--beams` | **该后端不支持 beam search，会直接崩溃**，还会污染 pipeline 状态 |
-| 不要用 `repetition_penalty` | 实测让 WER 从 0% 升到 4.5% |
-| 不要关掉 VAD | 静音段会凭空产生幻觉文本（见上文） |
+| ❌                        | 原因                                            |
+| ------------------------ | --------------------------------------------- |
+| 不要用 `--beams`            | **该后端不支持 beam search，会直接崩溃**，还会污染 pipeline 状态 |
+| 不要用 `repetition_penalty` | 实测让 WER 从 0% 升到 4.5%                          |
+| 不要关掉 VAD                 | 静音段会凭空产生幻觉文本（见上文）                             |
 
 ### 完整参数表
 
-| 参数 | 说明 | 默认 |
-|---|---|---|
-| `-a, --accuracy` | 精度档位 `standard` / `high` / `max` | `high` |
-| `-m, --model` | `turbo` / `largev3` / `turbo-int8` / `largev3-int8` | 由档位决定 |
-| `-d, --device` | `GPU` / `CPU` / `AUTO` / `GPU.0` | `GPU` |
-| `-l, --language` | `auto` / `zh` / `en` / `ja`… 共 100 种，支持「中文」「粤语」等别名 | `auto` |
-| `--prompt` | initial_prompt：术语、人名、专名 | — |
-| `--hotwords` | 热词表（逗号分隔） | — |
-| `-f, --format` | `txt` `srt` `vtt` `lrc` `json` `all`，可多选 | `txt` |
-| `-o, --output-dir` | 输出目录 | 源文件同目录 |
-| `-r, --recursive` | 目录递归 | 关 |
-| `--show-text` | 终端打印识别结果 | 关 |
-| `--vad` / `--no-vad` | 静音门控开关 | 开 |
-| `--vad-merge-gap` | 语音间隔小于此毫秒数就并成一块（保上下文） | `2500` |
-| `--vad-min-silence` | 静音超过此毫秒数才算一段结束 | `300` |
-| `--vad-max-block` | 单个识别块最长秒数 | `28` |
-| `--keep-hallucination` | 保留疑似幻觉片段 | 关 |
-| `--timestamp-names` | 输出文件名加时间戳，避免覆盖 | 关 |
-| `--bench` | 性能基准模式 | — |
-| `--list-models` | 列出模型及下载状态 | — |
-| `--list-languages` | 列出全部 100 个语言码 | — |
+| 参数                     | 说明                                                  | 默认     |
+| ---------------------- | --------------------------------------------------- | ------ |
+| `-a, --accuracy`       | 精度档位 `standard` / `high` / `max`                    | `high` |
+| `-m, --model`          | `turbo` / `largev3` / `turbo-int8` / `largev3-int8` | 由档位决定  |
+| `-d, --device`         | `GPU` / `CPU` / `AUTO` / `GPU.0`                    | `GPU`  |
+| `-l, --language`       | `auto` / `zh` / `en` / `ja`… 共 100 种，支持「中文」「粤语」等别名  | `auto` |
+| `--prompt`             | initial_prompt：术语、人名、专名                             | —      |
+| `--hotwords`           | 热词表（逗号分隔）                                           | —      |
+| `-f, --format`         | `txt` `srt` `vtt` `lrc` `json` `all`，可多选            | `txt`  |
+| `-o, --output-dir`     | 输出目录                                                | 源文件同目录 |
+| `-r, --recursive`      | 目录递归                                                | 关      |
+| `--show-text`          | 终端打印识别结果                                            | 关      |
+| `--vad` / `--no-vad`   | 静音门控开关                                              | 开      |
+| `--vad-merge-gap`      | 语音间隔小于此毫秒数就并成一块（保上下文）                               | `2500` |
+| `--vad-min-silence`    | 静音超过此毫秒数才算一段结束                                      | `300`  |
+| `--vad-max-block`      | 单个识别块最长秒数                                           | `28`   |
+| `--keep-hallucination` | 保留疑似幻觉片段                                            | 关      |
+| `--timestamp-names`    | 输出文件名加时间戳，避免覆盖                                      | 关      |
+| `--bench`              | 性能基准模式                                              | —      |
+| `--list-models`        | 列出模型及下载状态                                           | —      |
+| `--list-languages`     | 列出全部 100 个语言码                                       | —      |
 
 ### 精度档位
 
-| 档位 | 模型 | VAD | 适用场景 |
-|---|---|---|---|
-| `standard` | turbo | 关 | 干净单人录音，追求最快 |
-| `high` | turbo | **开** | **默认**，日常首选 |
-| `max` | large-v3 | **开** | 重要素材、噪声环境、需要最高准确率 |
+| 档位         | 模型       | VAD   | 适用场景              |
+| ---------- | -------- | ----- | ----------------- |
+| `standard` | turbo    | 关     | 干净单人录音，追求最快       |
+| `high`     | turbo    | **开** | **默认**，日常首选       |
+| `max`      | large-v3 | **开** | 重要素材、噪声环境、需要最高准确率 |
 
 `-m` 可单独覆盖档位的模型：`whisper.bat a.mp3 -a max -m turbo`（保留 max 的 VAD 配置但换 turbo 提速）。
 
@@ -325,13 +333,13 @@ $ whisper.bat "会议录音.mp4" -a max -l txt
 
 五种格式，全部为 **UTF-8 无 BOM、LF 换行**（固定不变，不随操作系统变化）。
 
-| 格式 | 说明 | 时间戳写法 |
-|---|---|---|
-| `txt` | 纯文本全文 | 无 |
-| `srt` | SubRip 字幕，VLC / PotPlayer / MPC-HC / PR / 剪映 通用 | `HH:MM:SS,mmm` |
-| `vtt` | WebVTT，网页 `<track>` / YouTube / B站 通用 | `HH:MM:SS.mmm` |
-| `lrc` | 歌词，音乐播放器用 | `[MM:SS.cc]`（厘秒两位） |
-| `json` | 结构化数据，含分段、词级、性能指标 | 秒（浮点） |
+| 格式     | 说明                                              | 时间戳写法              |
+| ------ | ----------------------------------------------- | ------------------ |
+| `txt`  | 纯文本全文                                           | 无                  |
+| `srt`  | SubRip 字幕，VLC / PotPlayer / MPC-HC / PR / 剪映 通用 | `HH:MM:SS,mmm`     |
+| `vtt`  | WebVTT，网页 `<track>` / YouTube / B站 通用           | `HH:MM:SS.mmm`     |
+| `lrc`  | 歌词，音乐播放器用                                       | `[MM:SS.cc]`（厘秒两位） |
+| `json` | 结构化数据，含分段、词级、性能指标                               | 秒（浮点）              |
 
 ### 生成前会自动做的整理
 
@@ -351,7 +359,7 @@ venv\Scripts\python.exe tools\subtitle_check.py 输出目录
 
 逐条列出违规（序号不连续、时间戳越界、重叠、未转义等），并用 **ffmpeg 真实解析**做交叉验证。
 
-> **关于字幕折行**：SRT 格式本身不规定行长，所以这里保持原文不折行。
+> **关于字幕折行**：SRT 格式本身不规定行长，所以这里保持原文不折行。  
 > 需要按广播惯例（英文 42 字符 / 中文约 20 字）自动折行的话，欢迎提 issue。
 
 ---
@@ -378,16 +386,16 @@ Silero VAD（OpenVINO，跑在 CPU）
 
 ### 几个设计取舍
 
-**VAD 放 CPU 而不是 GPU。** 实测 11 秒音频 VAD 在 CPU 上 60ms、GPU 上 448ms ——
+**VAD 放 CPU 而不是 GPU。** 实测 11 秒音频 VAD 在 CPU 上 60ms、GPU 上 448ms ——  
 小模型在 GPU 上被逐次调用开销拖垮。CPU 反而快 7 倍，还省下显存给 Whisper。
 
-**切块要「合并」而不是「切碎」。** 单纯按语音段切会切太碎丢上下文。
-默认把 2.5 秒以内的停顿合并成一块，既保留句子上下文，又不会把长静音并进来。
-（这个默认值是踩坑调出来的：设 1.5 秒时，句中停顿会被切开，边界处的字词会丢，
+**切块要「合并」而不是「切碎」。** 单纯按语音段切会切太碎丢上下文。  
+默认把 2.5 秒以内的停顿合并成一块，既保留句子上下文，又不会把长静音并进来。  
+（这个默认值是踩坑调出来的：设 1.5 秒时，句中停顿会被切开，边界处的字词会丢，  
 WER 从 0% 涨到 4.5%。）
 
-**Web 服务只用 Python 标准库。** 不引 Flask/FastAPI，避免给离线环境加依赖。
-任务串行（pipeline 单例占显存）、进度走 SSE、取消是协作式的（不硬杀线程，
+**Web 服务只用 Python 标准库。** 不引 Flask/FastAPI，避免给离线环境加依赖。  
+任务串行（pipeline 单例占显存）、进度走 SSE、取消是协作式的（不硬杀线程，  
 所以已识别的部分结果能保留）。
 
 **CLI 与 Web 共用同一套核心。** 不是两套逻辑，通过回调注入进度。
@@ -430,17 +438,18 @@ whisper-openvino-arc/
 
 ## 常见问题
 
-<details>
+<details>  
 <summary><b>没检测到 GPU / 速度很慢</b></summary>
 
 1. 先跑自检看设备列表：
    ```bat
    venv\Scripts\python.exe tools\check_env.py
    ```
-2. `available_devices` 里应该有 `GPU`。没有的话装/更新 Intel 显卡驱动
+2. `available_devices` 里应该有 `GPU`。没有的话装/更新 Intel 显卡驱动  
    （Arc 需要 **31.0.101.4xxx 以上**）。
 3. 速度慢通常是有别的程序在抢显卡（模拟器、远程桌面软件等）。
 4. 确认参数是 `-d GPU`（默认就是）。
+
 
 </details>
 
